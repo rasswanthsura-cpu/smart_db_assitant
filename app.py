@@ -6,10 +6,7 @@ from langchain_ollama import ChatOllama
 from sqlalchemy.exc import DBAPIError
 
 
-DATABASE_URI = os.getenv(
-    "SMART_DB_DATABASE_URI",
-    "mysql+pymysql://root:Sweet10days@localhost:3306/moviesdb",
-)
+DATABASE_URI = os.getenv("SMART_DB_DATABASE_URI")
 MOVIES_TABLE = "movies"
 MOVIE_COLUMNS = ("movie_id", "title", "release_year", "imdb_rating")
 SQL_PREVIEW_LIMIT = 200
@@ -27,6 +24,12 @@ db: Optional[SQLDatabase] = None
 
 
 def create_database() -> SQLDatabase:
+    if not DATABASE_URI:
+        raise RuntimeError(
+            "SMART_DB_DATABASE_URI is not set. Configure your MySQL connection "
+            "string as an environment variable before starting the assistant."
+        )
+
     return SQLDatabase.from_uri(
         DATABASE_URI,
         engine_args=DB_ENGINE_ARGS,
